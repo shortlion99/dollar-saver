@@ -41,9 +41,16 @@ exports.addExpense = async (req, res) => {
       createdAt: new Date(),
     });
 
+    // Include total and merchant in the response
+    const { total, merchant } = parsedData; // Ensure these keys exist in parsedData
+
     res.status(200).json({
       message: "Text extracted successfully.",
       text: text,
+      details: {
+        total,
+        merchant,
+      },
     });
   } catch (error) {
     console.error("Error during OCR processing:", error);
