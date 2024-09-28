@@ -41,11 +41,11 @@ class _MainScaffoldState extends State<MainScaffold> {
   Widget _getSelectedScreen(int index, BudgetProvider budgetProvider) {
     switch (index) {
       case 0:
-        return HomeScreen(); // Your existing HomeScreen
+        return HomeScreen(); 
       case 1:
-        return AddTransactionScreen(); // Your Add Transaction Screen
+        return AddTransactionScreen(); 
       case 2:
-        return DashboardScreen(); // Your Dashboard Screen
+        return DashboardScreen(); 
       default:
         return HomeScreen();
     }
@@ -53,8 +53,8 @@ class _MainScaffoldState extends State<MainScaffold> {
 
   Widget _buildBottomNavBar() {
     return Container(
-      color: Colors.white, // Set nav bar background to grey
-      padding: EdgeInsets.symmetric(vertical: 10),
+      color: Colors.white, 
+      padding: EdgeInsets.symmetric(vertical: 15),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
@@ -75,8 +75,8 @@ class _MainScaffoldState extends State<MainScaffold> {
         children: [
           Icon(
             icon,
-            color: isSelected ? Colors.grey : Colors.black, // Change color when selected
-            size: isSelected ? 30 : 24, // Larger size if selected
+            color: isSelected ? Colors.black : Colors.grey,
+            size: isSelected ? 35 : 28, // Larger size if selected
           ),
           SizedBox(height: 4),
           Container(

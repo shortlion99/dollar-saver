@@ -24,6 +24,8 @@ class Transaction {
     return date.year == now.year && date.month == now.month;
   }
 
+  
+
   // Method to format the date for display
   String formattedDate() {
     return "${date.day}/${date.month}/${date.year}"; // Adjust format as needed

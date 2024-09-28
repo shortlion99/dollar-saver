@@ -16,49 +16,48 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
   bool _isProcessing = false; // To track processing state
 
   @override
-Widget build(BuildContext context) {
-  return Scaffold(
-    backgroundColor: Colors.white,
-    appBar: AppBar(
-      elevation: 0,
-      title: Row(
-        children: [
-          const Text('Add Transaction', style: TextStyle(color: Colors.black)),
-        ],
-      ),
-      // Aligning title to the left
-      toolbarHeight: 60, // Adjust height if necessary
-    ),
-    body: Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+  Widget build(BuildContext context) {
+    return Scaffold(
+      
+      appBar: AppBar(
+        elevation: 0,
+        
+        title: Row(
           children: [
-            _buildWelcomeMessage(),
-            const SizedBox(height: 16),
-            _buildInputField(),
-            const SizedBox(height: 16),
-            _buildReceiptPreview(),
-            const SizedBox(height: 16),
-            _isProcessing ? _buildLoadingIndicator() : Container(),
-            const SizedBox(height: 16),
-            _buildCategorizedExpenses(),
+            const Text('Add Transaction',),
           ],
         ),
+        toolbarHeight: 60, // Adjust height if necessary
       ),
-    ),
-  );
-}
-
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildWelcomeMessage(),
+              const SizedBox(height: 16),
+              _buildInputField(),
+              const SizedBox(height: 16),
+              _buildReceiptPreview(),
+              const SizedBox(height: 16),
+              _isProcessing ? _buildLoadingIndicator() : Container(),
+              const SizedBox(height: 16),
+              _buildCategorizedExpenses(),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 
   Widget _buildWelcomeMessage() {
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(20), // More rounded corners
       ),
-      color: Colors.grey[100], // Slightly different background color for contrast
+      color: Colors.pink[100], // Pastel pink background for the card
       child: Padding(
         padding: const EdgeInsets.all(12.0),
         child: const Text(
@@ -73,8 +72,9 @@ Widget build(BuildContext context) {
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(20), // More rounded corners
       ),
+      
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
         child: Row(
@@ -157,10 +157,10 @@ Widget build(BuildContext context) {
         : Card(
             elevation: 2,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(20), // More rounded corners
             ),
             child: ClipRRect(
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(20), // More rounded corners
               child: Image.file(
                 _receiptImage!,
                 height: 150,
@@ -201,13 +201,13 @@ Widget build(BuildContext context) {
             return Card(
               elevation: 2,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: BorderRadius.circular(20), // More rounded corners
               ),
               margin: const EdgeInsets.symmetric(vertical: 8),
               child: ListTile(
                 title: Text(categorizedExpenses[index]),
                 leading: const Icon(Icons.attach_money, color: Colors.black),
-                tileColor: Colors.grey[100],
+                tileColor: Colors.pink[50], // Light pastel background for categorized expenses
               ),
             );
           },
