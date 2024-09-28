@@ -3,11 +3,18 @@ import 'package:flutter/material.dart';
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
 
+  static const TextStyle titleStyle = TextStyle(
+    fontSize: 22,
+    fontWeight: FontWeight.bold,
+    color: Colors.black,
+  );
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Dashboard', style: TextStyle(color: Colors.black)),
+        title: const Text('Dashboard', style: titleStyle),
         backgroundColor: Colors.white,
         elevation: 0,
       ),

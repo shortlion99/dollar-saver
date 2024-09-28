@@ -137,7 +137,7 @@ Widget build(BuildContext context) {
 
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Colors.grey[200],
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
@@ -276,17 +276,17 @@ Widget build(BuildContext context) {
           // You can replace this with dynamic data
           ListTile(
             title: Text('Coffee'),
-            subtitle: Text('Date: 2024-09-26'),
+            subtitle: Text('2024-09-26'),
             trailing: Text('\$4.50'),
           ),
           ListTile(
             title: Text('Groceries'),
-            subtitle: Text('Date: 2024-09-25'),
+            subtitle: Text('2024-09-25'),
             trailing: Text('\$30.00'),
           ),
           ListTile(
             title: Text('Transport'),
-            subtitle: Text('Date: 2024-09-24'),
+            subtitle: Text('2024-09-24'),
             trailing: Text('\$15.00'),
           ),
         ],
