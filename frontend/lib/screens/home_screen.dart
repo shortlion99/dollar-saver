@@ -8,6 +8,7 @@ import 'package:ai_expense_app/screens/categorization_screen.dart';
 import 'package:ai_expense_app/components/custom_icons.dart';
 import 'package:ai_expense_app/widgets/app_logo.dart';
 import 'package:ai_expense_app/widgets/recent_transactions.dart';
+import 'package:ai_expense_app/widgets/expense_and_budget.dart';
 
 class ExpenseCategory {
   final String name;
@@ -61,60 +62,61 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Consumer<BudgetProvider>(
-      builder: (context, budgetProvider, child) {
-        return Scaffold(
-          backgroundColor: Colors.white,
-          body: Column(
-            children: [
-              Container(
-                padding: const EdgeInsets.only(top: 30.0),
-                child: AppLogo(size: 120),
-              ),
-              Expanded(
-                child: SingleChildScrollView(
-                  child: Padding(
-                    padding: const EdgeInsets.all(10.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _buildTotalExpenses(budgetProvider),
-                        const SizedBox(height: 16),
-                        _buildToggleButtons(),
-                        _buildExpenseList(),
-                        const SizedBox(height: 10),
-                        RecentTransactions(limit: 3), // Limit recent transactions to 3
-                        const SizedBox(height: 10),
-                        TextButton(
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const DashboardScreen(), // Update with the actual route to your full transactions screen
-                              ),
-                            );
-                          },
-                          child: const Text(
-                            'See All',
-                            style: TextStyle(
-                              color: Colors.pinkAccent,
-                              fontSize: 16,
+Widget build(BuildContext context) {
+  return Consumer<BudgetProvider>(
+    builder: (context, budgetProvider, child) {
+      return Scaffold(
+        backgroundColor: Colors.white,
+        body: Column(
+          children: [
+            Container(
+              padding: const EdgeInsets.only(top: 30.0),
+              child: AppLogo(size: 120),
+            ),
+            Expanded(
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.all(10.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      buildTotalExpenses(budgetProvider, titleStyle), // Updated call
+                      const SizedBox(height: 16),
+                      _buildToggleButtons(),
+                      _buildExpenseList(),
+                      const SizedBox(height: 10),
+                      RecentTransactions(limit: 3), // Limit recent transactions to 3
+                      const SizedBox(height: 10),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const DashboardScreen(),
                             ),
+                          );
+                        },
+                        child: const Text(
+                          'See All',
+                          style: TextStyle(
+                            color: Colors.pinkAccent,
+                            fontSize: 16,
                           ),
                         ),
-                        const SizedBox(height: 10),
-                      ],
-                    ),
+                      ),
+                      const SizedBox(height: 10),
+                    ],
                   ),
                 ),
               ),
-            ],
-          ),
-        );
-      },
-    );
-  }
+            ),
+          ],
+        ),
+      );
+    },
+  );
+}
+
 
   Widget _buildToggleButtons() {
     return Container(
@@ -204,49 +206,6 @@ class _HomeScreenState extends State<HomeScreen>
     );
   }
 
-  Widget _buildTotalExpenses(BudgetProvider budgetProvider) {
-    double totalExpenses = budgetProvider.totalExpenses;
-    double budget = budgetProvider.budget;
-
-    return Card(
-      elevation: 6,
-      shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20)), // Rounded corners
-      child: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Budget vs Expenses',
-              style: titleStyle,
-            ),
-            const SizedBox(height: 10),
-            // Add a Container to customize the progress bar
-            Container(
-              height: 14, // Adjust height to make it thicker
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(20), // More rounded corners
-                child: LinearProgressIndicator(
-                  value: budget > 0 ? totalExpenses / budget : 0,
-                  backgroundColor: Colors.grey[300],
-                  color:
-                      totalExpenses > budget ? Colors.grey : Colors.pinkAccent,
-                ),
-              ),
-            ),
-            const SizedBox(
-                height: 4), // Reduce the space between progress bar and text
-            Text(
-              '\$${totalExpenses.toStringAsFixed(2)} / \$${budget.toStringAsFixed(2)}',
-              style: TextStyle(
-                  color: totalExpenses > budget ? Colors.red : Colors.black),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 
   Widget _buildExpenseList() {
     final data = [
