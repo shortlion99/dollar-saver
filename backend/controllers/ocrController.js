@@ -98,18 +98,16 @@ exports.addExpense = async (req, res) => {
 
         await batch.commit();
 
-        const { total, merchant } = parsedData; 
+        const { total, merchant } = parsedData; // Ensure these keys exist in parsedData
 
-        res.status(200).json({
-            message: "Text extracted successfully.",
-            amount: parseFloat(total), 
-            category: parsedData.category,
-            createdAt: new Date().toISOString(), 
-            description: parsedData.description,
-            expense: true,
-            items: parsedData.items, 
-            merchant: merchant 
-        });
+    res.status(200).json({
+      message: "Text extracted successfully.",
+      text: text,
+      details: {
+        total,
+        merchant,
+      },
+    });
     } catch (error) {
         console.error("Error during OCR processing:", error.message || error); // Log specific error message
         res.status(500).json({ error: error.message || "An error occurred during processing." });
