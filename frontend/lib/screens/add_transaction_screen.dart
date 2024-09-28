@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
@@ -11,37 +10,155 @@ class AddTransactionScreen extends StatefulWidget {
 }
 
 class _AddTransactionScreenState extends State<AddTransactionScreen> {
-  TextEditingController chatbotController = TextEditingController();
+  TextEditingController expenseController = TextEditingController();
   File? _receiptImage;
-  List<String> chatMessages = []; // To store chat messages
+  List<String> categorizedExpenses = []; // Store categorized expenses
+  bool _isProcessing = false; // To track processing state
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.deepPurple,
-        elevation: 0,
-        title: const Text('Add Transaction', style: TextStyle(color: Colors.white)),
+Widget build(BuildContext context) {
+  return Scaffold(
+    backgroundColor: Colors.white,
+    appBar: AppBar(
+      elevation: 0,
+      title: Row(
+        children: [
+          const Text('Add Transaction', style: TextStyle(color: Colors.black)),
+        ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
+      // Aligning title to the left
+      toolbarHeight: 60, // Adjust height if necessary
+    ),
+    body: Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: SingleChildScrollView(
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildChatbotInput(),
+            _buildWelcomeMessage(),
+            const SizedBox(height: 16),
+            _buildInputField(),
             const SizedBox(height: 16),
             _buildReceiptPreview(),
+            const SizedBox(height: 16),
+            _isProcessing ? _buildLoadingIndicator() : Container(),
+            const SizedBox(height: 16),
+            _buildCategorizedExpenses(),
+          ],
+        ),
+      ),
+    ),
+  );
+}
+
+
+  Widget _buildWelcomeMessage() {
+    return Card(
+      elevation: 2,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10),
+      ),
+      color: Colors.grey[100], // Slightly different background color for contrast
+      child: Padding(
+        padding: const EdgeInsets.all(12.0),
+        child: const Text(
+          'Easily log your expenses. Type your expense or upload a receipt, and let AI categorize it for you!',
+          style: TextStyle(color: Colors.black, fontSize: 16),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInputField() {
+    return Card(
+      elevation: 2,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+        child: Row(
+          children: [
+            IconButton(
+              icon: const Icon(Icons.upload_file, color: Colors.black),
+              onPressed: _pickImage,
+              tooltip: 'Upload Receipt',
+            ),
+            Expanded(
+              child: TextField(
+                controller: expenseController,
+                decoration: InputDecoration(
+                  hintText: 'Type your expense here...',
+                  border: InputBorder.none,
+                  contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+                ),
+                onSubmitted: (_) => _logExpense(),
+              ),
+            ),
+            IconButton(
+              icon: const Icon(Icons.send, color: Colors.black),
+              onPressed: _logExpense,
+            ),
           ],
         ),
       ),
     );
   }
 
+  void _logExpense() async {
+    final message = expenseController.text.trim();
+    if (message.isNotEmpty) {
+      final response = await _processUserInput(message);
+      setState(() {
+        categorizedExpenses.add(response);
+      });
+      expenseController.clear();
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Expense logged: $response')));
+    }
+  }
+
+  Future<String> _processUserInput(String input) async {
+    await Future.delayed(const Duration(seconds: 1));
+    return "Categorized as Food & Drink, amount: \$10"; // Example response
+  }
+
+  Future<void> _pickImage() async {
+    try {
+      final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
+      if (pickedFile != null) {
+        setState(() {
+          _receiptImage = File(pickedFile.path);
+          _isProcessing = true; // Start processing
+        });
+
+        final response = await _processReceipt(_receiptImage!);
+        setState(() {
+          categorizedExpenses.add(response);
+          _isProcessing = false; // Stop processing
+        });
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Receipt uploaded: $response')));
+      }
+    } catch (e) {
+      setState(() {
+        _isProcessing = false; // Stop processing in case of error
+      });
+      print('Error picking image: $e');
+    }
+  }
+
+  Future<String> _processReceipt(File receiptImage) async {
+    await Future.delayed(const Duration(seconds: 2)); // Simulate longer network delay
+    return "Receipt processed: Spent \$20 on groceries"; // Example response
+  }
+
   Widget _buildReceiptPreview() {
     return _receiptImage == null
         ? Container()
-        : Padding(
-            padding: const EdgeInsets.only(top: 16.0),
+        : Card(
+            elevation: 2,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(10),
               child: Image.file(
@@ -54,126 +171,54 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
           );
   }
 
-  Widget _buildChatbotInput() {
-    return Expanded(
-      child: Container(
-        padding: const EdgeInsets.all(16.0),
-        decoration: BoxDecoration(
-          color: Colors.grey[200],
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Column(
-          children: [
-            Expanded(
-              child: ListView.builder(
-                itemCount: chatMessages.length,
-                itemBuilder: (context, index) {
-                  final message = chatMessages[index];
-                  return _buildChatMessage(message);
-                },
-              ),
-            ),
-            _buildChatInputField(),
-          ],
-        ),
+  Widget _buildLoadingIndicator() {
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: const [
+          CircularProgressIndicator(color: Colors.black),
+          SizedBox(height: 8),
+          Text('Scanning receipt...', style: TextStyle(color: Colors.black)),
+        ],
       ),
     );
   }
 
-  Widget _buildChatMessage(String message) {
-    return Align(
-      alignment: message.startsWith("You:") ? Alignment.centerRight : Alignment.centerLeft,
-      child: Container(
-        padding: const EdgeInsets.all(12),
-        margin: const EdgeInsets.symmetric(vertical: 4),
-        decoration: BoxDecoration(
-          color: message.startsWith("You:") ? Colors.blue[100] : Colors.deepPurple[100],
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Text(
-          message,
-          style: TextStyle(
-            color: message.startsWith("You:") ? Colors.black : Colors.black87,
-          ),
-        ),
-      ),
-    );
-  }
+  Widget _buildCategorizedExpenses() {
+    if (categorizedExpenses.isEmpty) {
+      return const Text('No categorized expenses yet.');
+    }
 
-  Widget _buildChatInputField() {
-    return Row(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        IconButton(
-          icon: const Icon(Icons.upload_file, color: Colors.deepPurple),
-          onPressed: _pickImage,
-          tooltip: 'Upload Receipt',
-        ),
-        Expanded(
-          child: TextField(
-            controller: chatbotController,
-            decoration: const InputDecoration(
-              hintText: 'Type your message...',
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.all(Radius.circular(10)),
-                borderSide: BorderSide.none,
+        const Text('Categorized Expenses:', style: TextStyle(fontWeight: FontWeight.bold)),
+        ListView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: categorizedExpenses.length,
+          itemBuilder: (context, index) {
+            return Card(
+              elevation: 2,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
               ),
-              filled: true,
-              fillColor: Color(0xFFF0F0F0), // Light grey background
-            ),
-          ),
-        ),
-        IconButton(
-          icon: const Icon(Icons.send, color: Colors.blue),
-          onPressed: _sendChatMessage,
+              margin: const EdgeInsets.symmetric(vertical: 8),
+              child: ListTile(
+                title: Text(categorizedExpenses[index]),
+                leading: const Icon(Icons.attach_money, color: Colors.black),
+                tileColor: Colors.grey[100],
+              ),
+            );
+          },
         ),
       ],
     );
   }
 
-  void _sendChatMessage() async {
-    final message = chatbotController.text.trim();
-    if (message.isNotEmpty) {
-      setState(() {
-        chatMessages.add("You: $message"); // Add user message
-      });
-      chatbotController.clear();
-
-      // Call your AI processing function here
-      final response = await _processUserInput(message);
-      setState(() {
-        chatMessages.add("ExpenseBot: $response"); // Add AI response
-      });
-    }
-  }
-
-  Future<String> _processUserInput(String input) async {
-    await Future.delayed(const Duration(seconds: 1)); // Simulate network delay
-    return "Categorized as Food & Drink, amount: \$10"; // Example response
-  }
-
-  Future<void> _pickImage() async {
-    final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
-    if (pickedFile != null) {
-      setState(() {
-        _receiptImage = File(pickedFile.path);
-      });
-
-      // Call your OCR processing function here
-      final response = await _processReceipt(_receiptImage!);
-      setState(() {
-        chatMessages.add("ExpenseBot: $response"); // Add AI response
-      });
-    }
-  }
-
-  Future<String> _processReceipt(File receiptImage) async {
-    await Future.delayed(const Duration(seconds: 1)); // Simulate network delay
-    return "Receipt processed: Spent \$20 on groceries"; // Example response
-  }
-
   @override
   void dispose() {
-    chatbotController.dispose();
+    expenseController.dispose();
     super.dispose();
   }
 }

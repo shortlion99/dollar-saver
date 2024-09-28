@@ -10,6 +10,8 @@ import 'package:ai_expense_app/components/custom_icons.dart';
 const Color customPurple = Color.fromARGB(255, 41, 14, 96); // Custom dark purple shade
 
 class MainScaffold extends StatefulWidget {
+  const MainScaffold({super.key});
+
   @override
   _MainScaffoldState createState() => _MainScaffoldState();
 }
@@ -28,6 +30,7 @@ class _MainScaffoldState extends State<MainScaffold> {
     return Consumer<BudgetProvider>(
       builder: (context, budgetProvider, child) {
         return Scaffold(
+          backgroundColor: Colors.white, // Set entire background to white
           body: _getSelectedScreen(_selectedIndex, budgetProvider),
           bottomNavigationBar: _buildBottomNavBar(),
         );
@@ -50,143 +53,37 @@ class _MainScaffoldState extends State<MainScaffold> {
 
   Widget _buildBottomNavBar() {
     return Container(
+      color: Colors.white, // Set nav bar background to grey
       padding: EdgeInsets.symmetric(vertical: 10),
-      decoration: BoxDecoration(
-        color: customPurple, // Use custom purple
-      ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          IconButton(
-            icon: Icon(Icons.home, color: Colors.white),
-            onPressed: () => _onItemTapped(0),
-          ),
-          IconButton(
-            icon: Icon(Icons.add, color: Colors.white),
-            onPressed: () => _onItemTapped(1),
-          ),
-          IconButton(
-            icon: Icon(Icons.dashboard, color: Colors.white),
-            onPressed: () => _onItemTapped(2),
-          ),
+          _buildNavItem(icon: Icons.home, index: 0),
+          _buildNavItem(icon: Icons.add, index: 1),
+          _buildNavItem(icon: Icons.dashboard, index: 2),
         ],
       ),
     );
   }
-}
 
-class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Consumer<BudgetProvider>(
-      builder: (context, budgetProvider, child) {
-        return Scaffold(
-          body: SafeArea(
-            child: Column(
-              children: [
-                _buildHeader(context, budgetProvider),
-                _buildToggleButtons(),
-                Expanded(
-                  child: _buildTransactionList(budgetProvider),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildHeader(BuildContext context, BudgetProvider budgetProvider) {
-    return Container(
-      padding: EdgeInsets.all(20),
-      color: customPurple, // Use custom purple for the header
+  Widget _buildNavItem({required IconData icon, required int index}) {
+    final bool isSelected = _selectedIndex == index;
+    return GestureDetector(
+      onTap: () => _onItemTapped(index),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
-          const Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Icon(Icons.menu, color: Colors.white),
-              CircleAvatar(
-                backgroundImage: AssetImage('assets/profile_picture.jpg'),
-              ),
-            ],
+          Icon(
+            icon,
+            color: isSelected ? Colors.grey : Colors.black, // Change color when selected
+            size: isSelected ? 30 : 24, // Larger size if selected
           ),
-          const SizedBox(height: 20),
-          const Text(
-            'My budget',
-            style: TextStyle(color: Colors.white, fontSize: 24),
-          ),
-          Text(
-            '\$${budgetProvider.totalBudget.toStringAsFixed(2)}',
-            style: const TextStyle(
-                color: Colors.white, fontSize: 48, fontWeight: FontWeight.bold),
+          SizedBox(height: 4),
+          Container(
+            height: 4,
+            color: isSelected ? Colors.grey : Colors.transparent, // Change indicator color
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildToggleButtons() {
-    return Container(
-      margin: EdgeInsets.symmetric(vertical: 10),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          ElevatedButton(
-            child: Text('Today'),
-            onPressed: () {},
-            style: ElevatedButton.styleFrom(
-              backgroundColor: customPurple, // Use custom purple
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20)),
-            ),
-          ),
-          SizedBox(width: 10),
-          ElevatedButton(
-            child: Text('Month'),
-            onPressed: () {},
-            style: ElevatedButton.styleFrom(
-              backgroundColor: customPurple, // Use custom purple
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20)),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTransactionList(BudgetProvider budgetProvider) {
-    return Container(
-      decoration: const BoxDecoration(
-        color: Colors.white, // White background for the list
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(30),
-          topRight: Radius.circular(30),
-        ),
-      ),
-      child: ListView.builder(
-        itemCount: budgetProvider.transactions.length,
-        itemBuilder: (context, index) {
-          final transaction = budgetProvider.transactions[index];
-          return ListTile(
-            leading: CircleAvatar(
-              backgroundColor: Colors.grey[200],
-              child: Icon(
-                  CustomIcons.getIconForCategory(transaction.category),
-                  color: Colors.black),
-            ),
-            title: Text(transaction.category),
-            trailing: Text(
-              '\$${transaction.amount.toStringAsFixed(2)}',
-              style: TextStyle(color: customPurple), // Use custom purple
-            ),
-          );
-        },
       ),
     );
   }
