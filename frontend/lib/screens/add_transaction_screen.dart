@@ -22,15 +22,14 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
+        title: const Text('Add Transaction', style: TextStyle(
+    fontSize: 22,
+    fontWeight: FontWeight.bold,
+    color: Colors.black,
+  )),
+        backgroundColor: Colors.white,
         elevation: 0,
-        title: Row(
-          children: [
-            const Text('Add Transaction',
-                style: TextStyle(color: Colors.black)),
-          ],
-        ),
-        // Aligning title to the left
-        toolbarHeight: 60, // Adjust height if necessary
+        iconTheme: const IconThemeData(color: Colors.black),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -41,8 +40,8 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
               _buildWelcomeMessage(),
               const SizedBox(height: 16),
               _buildInputField(),
-              const SizedBox(height: 16),
-              _buildReceiptPreview(),
+              // const SizedBox(height: 16),
+              // _buildReceiptPreview(),
               const SizedBox(height: 16),
               _isProcessing ? _buildLoadingIndicator() : Container(),
               const SizedBox(height: 16),
@@ -138,19 +137,19 @@ Future<String> _processUserInput(String input) async {
     );
 
     if (response.statusCode == 200) {
-      final data = jsonDecode(response.body); // Parse the response
+  final data = jsonDecode(response.body); // Parse the response
 
-      // Now handle the array of expenses
-      final expenses = data['expenses'];
-      String result = '';
+  // Now handle the array of expenses
+  final expenses = data['expenses'];
+  String result = '';
 
-      for (var expense in expenses) {
-        result += 'Category: ${expense['category']}\n'
-                  'Total: \$${expense['total']}\n'
-                  'Description: ${expense['name']}\n'
-                  'Date: ${expense['date']}\n\n';
-      }
-
+  for (var expense in expenses) {
+    String type = expense['expense'] ? 'Expense' : 'Income';
+    result += 'Type: $type\n'
+              'Category: ${expense['category']}\n'
+              'Total: \$${expense['total']}\n';
+              // 'Date: ${expense['date']}\n\n';
+  }
       return result; // Return formatted string of all categorized expenses
     } else {
       print('Error: ${response.statusCode}');
@@ -254,38 +253,73 @@ Future<String> _processUserInput(String input) async {
     );
   }
 
-  Widget _buildCategorizedExpenses() {
-    if (categorizedExpenses.isEmpty) {
-      return const Text('No categorized expenses yet.');
-    }
+  // Widget _buildCategorizedExpenses() {
+  //   if (categorizedExpenses.isEmpty) {
+  //     return const Text('No categorized expenses yet.');
+  //   }
 
-    return Column(
+  //   return Column(
+  //     crossAxisAlignment: CrossAxisAlignment.start,
+  //     children: [
+  //       const Text('Categorized Expenses:',
+  //           style: TextStyle(fontWeight: FontWeight.bold)),
+  //       ListView.builder(
+  //         shrinkWrap: true,
+  //         physics: const NeverScrollableScrollPhysics(),
+  //         itemCount: categorizedExpenses.length,
+  //         itemBuilder: (context, index) {
+  //           return Card(
+  //             elevation: 2,
+  //             shape: RoundedRectangleBorder(
+  //               borderRadius: BorderRadius.circular(10),
+  //             ),
+  //             margin: const EdgeInsets.symmetric(vertical: 8),
+  //             child: ListTile(
+  //               title: Text(categorizedExpenses[index]),
+  //               leading: const Icon(Icons.attach_money, color: Colors.black),
+  //               tileColor: Colors.grey[100],
+  //             ),
+  //           );
+  //         },
+  //       ),
+  //     ],
+  //   );
+  // }
+
+  Widget _buildCategorizedExpenses() {
+  if (categorizedExpenses.isEmpty) {
+    return const Text('No categorized expenses yet.');
+  }
+
+  return Container(
+    decoration: BoxDecoration(
+      color: Colors.green[100], // Set the background color to a light green
+      borderRadius: BorderRadius.circular(12), // Add rounded corners
+    ),
+    padding: const EdgeInsets.all(16.0), // Optional padding for better spacing
+    child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('Categorized Expenses:',
-            style: TextStyle(fontWeight: FontWeight.bold)),
+        const Text(
+          'Your Entries:',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
         ListView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           itemCount: categorizedExpenses.length,
           itemBuilder: (context, index) {
-            return Card(
-              elevation: 2,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-              margin: const EdgeInsets.symmetric(vertical: 8),
-              child: ListTile(
-                title: Text(categorizedExpenses[index]),
-                leading: const Icon(Icons.attach_money, color: Colors.black),
-                tileColor: Colors.grey[100],
-              ),
+            final expense = categorizedExpenses[index];
+            return ListTile(
+              title: Text(expense), // Display the entire expense string
             );
           },
         ),
       ],
-    );
-  }
+    ),
+  );
+}
+
 
   @override
   void dispose() {
