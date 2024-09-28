@@ -1,6 +1,3 @@
-<<<<<<< Updated upstream
-console.log("test");
-=======
 const admin = require("firebase-admin");
 const Tesseract = require("tesseract.js");
 const fs = require("fs");
@@ -122,4 +119,3 @@ exports.addExpense = async (req, res) => {
         }
     }
 };
->>>>>>> Stashed changes
