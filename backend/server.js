@@ -7,24 +7,29 @@ const llmRouter = require('./routes/llmRoutes');
 const ocrRouter = require('./routes/ocrRoutes');
 
 const app = express();
-app.use(cors());
-
 const port = 3000;
 
+// Initialize Firebase Admin SDK
 admin.initializeApp({
     credential: admin.credential.cert(require('./config/serviceAccountKey.json'))
 });
 
-app.use(express.json()); // Add this line
-app.use(bodyParser.json());
+// Initialize Firestore
+const db = admin.firestore();
+
+// Middleware
+app.use(cors());
+app.use(express.json()); // Ensure express can parse JSON
+app.use(bodyParser.json()); // Optional: can be removed if not needed
+
+// Define routes
 app.use('/', llmRouter);
 app.use('/', ocrRouter);
 
+// Test endpoint
 app.get('/', (req, res) => {
     res.send('API is running');
 });
-
-const db = admin.firestore();
 
 // Example endpoint to test adding user data
 app.post('/addUser', async (req, res) => {
@@ -42,12 +47,7 @@ app.post('/addUser', async (req, res) => {
     }
 });
 
-
-// const ipAddress = '192.168.0.121'; // Replace with your actual IP address
-// app.listen(port, ipAddress, () => {
-//     console.log(`Server is running at http://${ipAddress}:${port}`);
-// });
-
+// Start the server
 app.listen(port, () => {
     console.log(`Server is running at http://localhost:${port}`);
-  });
+});
