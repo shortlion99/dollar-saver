@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
@@ -19,15 +20,16 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: Colors.deepPurple,
         elevation: 0,
-        title: const Text('Add Transaction', style: TextStyle(color: Colors.black)),
+        title: const Text('Add Transaction', style: TextStyle(color: Colors.white)),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
             _buildChatbotInput(),
+            const SizedBox(height: 16),
             _buildReceiptPreview(),
           ],
         ),
@@ -40,15 +42,26 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
         ? Container()
         : Padding(
             padding: const EdgeInsets.only(top: 16.0),
-            child: Image.file(_receiptImage!),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: Image.file(
+                _receiptImage!,
+                height: 150,
+                width: double.infinity,
+                fit: BoxFit.cover,
+              ),
+            ),
           );
   }
 
   Widget _buildChatbotInput() {
     return Expanded(
       child: Container(
-        // Remove the grey border by not setting the background color
         padding: const EdgeInsets.all(16.0),
+        decoration: BoxDecoration(
+          color: Colors.grey[200],
+          borderRadius: BorderRadius.circular(10),
+        ),
         child: Column(
           children: [
             Expanded(
@@ -69,15 +82,20 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
 
   Widget _buildChatMessage(String message) {
     return Align(
-      alignment: Alignment.centerLeft,
+      alignment: message.startsWith("You:") ? Alignment.centerRight : Alignment.centerLeft,
       child: Container(
         padding: const EdgeInsets.all(12),
         margin: const EdgeInsets.symmetric(vertical: 4),
         decoration: BoxDecoration(
-          color: Colors.blue[100],
+          color: message.startsWith("You:") ? Colors.blue[100] : Colors.deepPurple[100],
           borderRadius: BorderRadius.circular(10),
         ),
-        child: Text(message),
+        child: Text(
+          message,
+          style: TextStyle(
+            color: message.startsWith("You:") ? Colors.black : Colors.black87,
+          ),
+        ),
       ),
     );
   }
@@ -95,7 +113,10 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
             controller: chatbotController,
             decoration: const InputDecoration(
               hintText: 'Type your message...',
-              border: InputBorder.none, // Remove the border
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.all(Radius.circular(10)),
+                borderSide: BorderSide.none,
+              ),
               filled: true,
               fillColor: Color(0xFFF0F0F0), // Light grey background
             ),
