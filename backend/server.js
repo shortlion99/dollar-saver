@@ -4,7 +4,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const admin = require('firebase-admin');
 const multer = require('multer');
-const 
+const path = require('path');
 const vision = require('@google-cloud/vision');
 const { OpenAIApi, Configuration } = require('openai');
 const axios = require('axios');
