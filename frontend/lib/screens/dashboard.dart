@@ -31,8 +31,8 @@ class DashboardScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildSummaryCard(),
-                const SizedBox(height: 30),
+                _buildSummaryCard(context),
+                const SizedBox(height: 20),
                 const Text(
                   'Expense Categories',
                   style: TextStyle(
@@ -42,7 +42,8 @@ class DashboardScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 10),
-                _buildCategoryList(),
+                _buildCategoryList(context),
+      
                 const SizedBox(height: 30),
                 RecentTransactions(limit: 6), // Set limit here to show more entries
               ],
@@ -53,27 +54,33 @@ class DashboardScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildSummaryCard() {
+  Widget _buildSummaryCard(BuildContext context) {
     return Card(
       elevation: 4,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
       ),
-      child: const Padding(
-        padding: EdgeInsets.all(20.0),
+      child: Padding(
+        padding: const EdgeInsets.all(20.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
+            const Text(
               'Summary',
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
-            SizedBox(height: 15),
+            const SizedBox(height: 15),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                _SummaryItem(title: 'Total Expenses', amount: '\$1,200'),
-                _SummaryItem(title: 'Monthly Budget', amount: '\$2,000'),
+                GestureDetector(
+                  onTap: () => _editSummaryItem(context, 'Total Expenses', '\$1,200'),
+                  child: _SummaryItem(title: 'Total Expenses', amount: '\$1,200'),
+                ),
+                GestureDetector(
+                  onTap: () => _editSummaryItem(context, 'Monthly Budget', '\$2,000'),
+                  child: _SummaryItem(title: 'Monthly Budget', amount: '\$2,000'),
+                ),
               ],
             ),
           ],
@@ -82,7 +89,7 @@ class DashboardScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildCategoryList() {
+  Widget _buildCategoryList(BuildContext context) {
     final List<ExpenseCategory> expenses = [
       ExpenseCategory('Food', 200, Colors.pink[200]!, [
         ExpenseItem('Groceries', 50),
@@ -116,15 +123,21 @@ class DashboardScreen extends StatelessWidget {
               style: const TextStyle(
                   color: Colors.white, fontWeight: FontWeight.bold),
             ),
-            trailing: Text(
-              '\$${expense.amount}',
-              style: const TextStyle(color: Colors.white),
+            trailing: GestureDetector(
+              onTap: () => _editCategory(context, expense),
+              child: Text(
+                '\$${expense.amount}',
+                style: const TextStyle(color: Colors.white),
+              ),
             ),
             children: expense.items.map((item) {
               return ListTile(
-                title: Text(
-                  item.name,
-                  style: const TextStyle(color: Colors.white70),
+                title: GestureDetector(
+                  onTap: () => _editExpense(context, item),
+                  child: Text(
+                    item.name,
+                    style: const TextStyle(color: Colors.white70),
+                  ),
                 ),
                 trailing: Text(
                   '\$${item.amount}',
@@ -135,6 +148,117 @@ class DashboardScreen extends StatelessWidget {
           ),
         );
       }).toList(),
+    );
+  }
+
+  void _editSummaryItem(BuildContext context, String title, String currentAmount) {
+    // Implement your editing logic here (e.g., show a dialog to update the amount)
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Edit $title'),
+          content: TextField(
+            decoration: InputDecoration(labelText: 'Amount'),
+            controller: TextEditingController(text: currentAmount),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                // Save changes and update the UI
+                Navigator.of(context).pop();
+              },
+              child: const Text('Save'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Cancel'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _editCategory(BuildContext context, ExpenseCategory category) {
+    // Implement your editing logic for categories here
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Edit ${category.category}'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                decoration: InputDecoration(labelText: 'Category Name'),
+                controller: TextEditingController(text: category.category),
+              ),
+              TextField(
+                decoration: InputDecoration(labelText: 'Amount'),
+                controller: TextEditingController(text: '${category.amount}'),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                // Save changes and update the UI
+                Navigator.of(context).pop();
+              },
+              child: const Text('Save'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Cancel'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _editExpense(BuildContext context, ExpenseItem item) {
+    // Implement your editing logic for individual expenses here
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Edit ${item.name}'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                decoration: InputDecoration(labelText: 'Expense Name'),
+                controller: TextEditingController(text: item.name),
+              ),
+              TextField(
+                decoration: InputDecoration(labelText: 'Amount'),
+                controller: TextEditingController(text: '${item.amount}'),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                // Save changes and update the UI
+                Navigator.of(context).pop();
+              },
+              child: const Text('Save'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Cancel'),
+            ),
+          ],
+        );
+      },
     );
   }
 }
@@ -169,13 +293,13 @@ class _SummaryItem extends StatelessWidget {
         Text(
           title,
           style: const TextStyle(
-              fontSize: 16, fontWeight: FontWeight.bold),
+              fontSize: 16, fontWeight: FontWeight.bold, color: Colors.grey),
         ),
         const SizedBox(height: 4),
         Text(
           amount,
           style: const TextStyle(
-              fontSize: 20, fontWeight: FontWeight.bold),
+              fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black),
         ),
       ],
     );
