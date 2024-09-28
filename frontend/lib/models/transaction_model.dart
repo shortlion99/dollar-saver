@@ -1,9 +1,8 @@
-
 class Transaction {
   final String category;
   final double amount;
   final DateTime date;
-  final bool isIncome; // Add this property
+  final bool isIncome;
 
   Transaction({
     required this.category,
@@ -11,6 +10,16 @@ class Transaction {
     required this.date,
     required this.isIncome,
   });
+
+  // Getter for formatted date
+  String get formattedDate {
+    return "${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}";
+  }
+
+  // New getter for a message representation of the transaction
+  String get itemAdded {
+    return isIncome ? 'Income' : 'Expense';
+  }
 
   // Method to check if the transaction is today
   bool isToday() {
@@ -24,8 +33,9 @@ class Transaction {
     return date.year == now.year && date.month == now.month;
   }
 
-  // Method to format the date for display
-  String formattedDate() {
-    return "${date.day}/${date.month}/${date.year}"; // Adjust format as needed
+  // Method to check if the transaction is in the current year
+  bool isThisYear() {
+    final now = DateTime.now();
+    return date.year == now.year; // Checks if the transaction year matches the current year
   }
 }

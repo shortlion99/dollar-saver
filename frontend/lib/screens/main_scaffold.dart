@@ -30,7 +30,7 @@ class _MainScaffoldState extends State<MainScaffold> {
     return Consumer<BudgetProvider>(
       builder: (context, budgetProvider, child) {
         return Scaffold(
-          backgroundColor: Colors.white, // Set entire background to white
+          backgroundColor: Colors.white,
           body: _getSelectedScreen(_selectedIndex, budgetProvider),
           bottomNavigationBar: _buildBottomNavBar(),
         );
@@ -41,11 +41,11 @@ class _MainScaffoldState extends State<MainScaffold> {
   Widget _getSelectedScreen(int index, BudgetProvider budgetProvider) {
     switch (index) {
       case 0:
-        return HomeScreen(); // Your existing HomeScreen
+        return HomeScreen();
       case 1:
-        return AddTransactionScreen(); // Your Add Transaction Screen
+        return AddTransactionScreen();
       case 2:
-        return DashboardScreen(); // Your Dashboard Screen
+        return DashboardScreen();
       default:
         return HomeScreen();
     }
@@ -53,13 +53,13 @@ class _MainScaffoldState extends State<MainScaffold> {
 
   Widget _buildBottomNavBar() {
     return Container(
-      color: Colors.white, // Set nav bar background to grey
-      padding: EdgeInsets.symmetric(vertical: 10),
+      color: Colors.white,
+      padding: EdgeInsets.symmetric(vertical: 15),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
           _buildNavItem(icon: Icons.home, index: 0),
-          _buildNavItem(icon: Icons.add, index: 1),
+          _buildNavItem(icon: Icons.add, index: 1), // Add button with circle
           _buildNavItem(icon: Icons.dashboard, index: 2),
         ],
       ),
@@ -73,15 +73,32 @@ class _MainScaffoldState extends State<MainScaffold> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
-            icon,
-            color: isSelected ? Colors.grey : Colors.black, // Change color when selected
-            size: isSelected ? 30 : 24, // Larger size if selected
-          ),
+          if (index == 1) // Only for the Add button
+            Container(
+              width: 50, // Set the width of the circle
+              height: 50, // Set the height of the circle
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.pink, // Circle color
+              ),
+              child: Center(
+                child: Icon(
+                  icon,
+                  color: Colors.white, // Icon color
+                  size: 28,
+                ),
+              ),
+            )
+          else
+            Icon(
+              icon,
+              color: isSelected ? Colors.black : Colors.grey,
+              size: isSelected ? 35 : 28,
+            ),
           SizedBox(height: 4),
           Container(
             height: 4,
-            color: isSelected ? Colors.grey : Colors.transparent, // Change indicator color
+            color: isSelected ? Colors.grey : Colors.transparent,
           ),
         ],
       ),
