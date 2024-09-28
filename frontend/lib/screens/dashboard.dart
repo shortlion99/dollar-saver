@@ -34,7 +34,7 @@ class DashboardScreen extends StatelessWidget {
                 _buildSummaryCard(),
                 const SizedBox(height: 30),
                 const Text(
-                  'Categorized Expenses',
+                  'Expense Categories',
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
