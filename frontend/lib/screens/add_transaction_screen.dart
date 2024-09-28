@@ -10,11 +10,7 @@ class AddTransactionScreen extends StatefulWidget {
 }
 
 class _AddTransactionScreenState extends State<AddTransactionScreen> {
-  String selectedCategory = 'Food & Drink';
-  TextEditingController amountController = TextEditingController();
-  TextEditingController notesController = TextEditingController();
   TextEditingController chatbotController = TextEditingController();
-  TextEditingController transactionInputController = TextEditingController();
   File? _receiptImage;
   List<String> chatMessages = []; // To store chat messages
 
@@ -25,63 +21,25 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.close, color: Colors.black),
-          onPressed: () => Navigator.pop(context),
-        ),
         title: const Text('Add Transaction', style: TextStyle(color: Colors.black)),
       ),
-      body: Column(
-        children: [
-          _buildTransactionInputField(),
-          _buildChatbotInput(),
-          _buildUploadReceiptButton(),
-          _buildReceiptPreview(),
-          
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTransactionInputField() {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: TextField(
-        controller: transactionInputController,
-        decoration: const InputDecoration(
-          labelText: 'Enter transaction (e.g., "Spent \$10 on coffee")',
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.all(Radius.circular(30.0)),
-          ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            _buildChatbotInput(),
+            _buildReceiptPreview(),
+          ],
         ),
       ),
     );
   }
-
-  Widget _buildUploadReceiptButton() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-      child: ElevatedButton.icon(
-        onPressed: _pickImage,
-        icon: const Icon(Icons.upload_file),
-        label: const Text('Upload Receipt'),
-        style: ElevatedButton.styleFrom(
-          minimumSize: const Size(double.infinity, 50),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(30.0),
-          ),
-          backgroundColor: Theme.of(context).primaryColor,
-        ),
-      ),
-    );
-  }
-
 
   Widget _buildReceiptPreview() {
     return _receiptImage == null
         ? Container()
         : Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.only(top: 16.0),
             child: Image.file(_receiptImage!),
           );
   }
@@ -89,16 +47,10 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
   Widget _buildChatbotInput() {
     return Expanded(
       child: Container(
-        color: Colors.grey[100],
+        // Remove the grey border by not setting the background color
         padding: const EdgeInsets.all(16.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Chat with ExpenseBot',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 10),
             Expanded(
               child: ListView.builder(
                 itemCount: chatMessages.length,
@@ -133,14 +85,19 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
   Widget _buildChatInputField() {
     return Row(
       children: [
+        IconButton(
+          icon: const Icon(Icons.upload_file, color: Colors.deepPurple),
+          onPressed: _pickImage,
+          tooltip: 'Upload Receipt',
+        ),
         Expanded(
           child: TextField(
             controller: chatbotController,
             decoration: const InputDecoration(
-              hintText: 'Enter your expense here...',
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.all(Radius.circular(30.0)),
-              ),
+              hintText: 'Type your message...',
+              border: InputBorder.none, // Remove the border
+              filled: true,
+              fillColor: Color(0xFFF0F0F0), // Light grey background
             ),
           ),
         ),
@@ -169,17 +126,12 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
   }
 
   Future<String> _processUserInput(String input) async {
-    // Here you would implement your logic to process the user input or receipt
-    // This could involve calling an external API that performs NLP and OCR
-
-    // Example: You might send the input to your AI service and get a response
-    // For now, return a mock response
     await Future.delayed(const Duration(seconds: 1)); // Simulate network delay
     return "Categorized as Food & Drink, amount: \$10"; // Example response
   }
 
   Future<void> _pickImage() async {
-    final pickedFile = await ImagePicker().getImage(source: ImageSource.gallery);
+    final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
       setState(() {
         _receiptImage = File(pickedFile.path);
@@ -194,20 +146,13 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
   }
 
   Future<String> _processReceipt(File receiptImage) async {
-    // Implement OCR extraction and AI processing here
-    // This function should return a string with categorized data
-
-    // Example: Simulate a response
     await Future.delayed(const Duration(seconds: 1)); // Simulate network delay
     return "Receipt processed: Spent \$20 on groceries"; // Example response
   }
 
   @override
   void dispose() {
-    amountController.dispose();
-    notesController.dispose();
     chatbotController.dispose();
-    transactionInputController.dispose();
     super.dispose();
   }
 }
