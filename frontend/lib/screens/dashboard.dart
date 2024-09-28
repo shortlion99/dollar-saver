@@ -1,50 +1,80 @@
-
 import 'package:flutter/material.dart';
+import 'package:ai_expense_app/widgets/recent_transactions.dart';
+import 'package:provider/provider.dart';
+import 'package:ai_expense_app/components/budget_provider.dart'; // Adjust this import as necessary
 
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
 
+  static const TextStyle titleStyle = TextStyle(
+    fontSize: 22,
+    fontWeight: FontWeight.bold,
+    color: Colors.black,
+  );
+
   @override
   Widget build(BuildContext context) {
+    final budgetProvider = Provider.of<BudgetProvider>(context);
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Dashboard', style: TextStyle(color: Colors.black)),
+        title: const Text('Dashboard', style: titleStyle),
         backgroundColor: Colors.white,
         elevation: 0,
+        iconTheme: const IconThemeData(color: Colors.black),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              _buildTotalExpenses(),
-              const SizedBox(height: 16),
-              _buildExpenseList(),
-              const SizedBox(height: 16),
-              _buildRecentTransactions(),
-            ],
+      body: SingleChildScrollView(
+        child: Container(
+          color: Colors.white,
+          child: Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildSummaryCard(),
+                const SizedBox(height: 30),
+                const Text(
+                  'Expense Categories',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                _buildCategoryList(),
+                const SizedBox(height: 30),
+                RecentTransactions(limit: 6), // Set limit here to show more entries
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 
-  Widget _buildTotalExpenses() {
+  Widget _buildSummaryCard() {
     return Card(
-      elevation: 6,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-      child: Padding(
-        padding: const EdgeInsets.all(20.0),
+      elevation: 4,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: const Padding(
+        padding: EdgeInsets.all(20.0),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Total Expenses',
-              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+            Text(
+              'Summary',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
-            const SizedBox(height: 10),
-            const Text(
-              '\$500',
-              style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold, color: Colors.deepPurple),
+            SizedBox(height: 15),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                _SummaryItem(title: 'Total Expenses', amount: '\$1,200'),
+                _SummaryItem(title: 'Monthly Budget', amount: '\$2,000'),
+              ],
             ),
           ],
         ),
@@ -52,100 +82,102 @@ class DashboardScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildExpenseList() {
-    final data = [
-      ExpenseCategory('Food', 200, Colors.blue),
-      ExpenseCategory('Transport', 150, Colors.green),
-      ExpenseCategory('Utilities', 100, Colors.red),
-      ExpenseCategory('Others', 50, Colors.orange),
+  Widget _buildCategoryList() {
+    final List<ExpenseCategory> expenses = [
+      ExpenseCategory('Food', 200, Colors.pink[200]!, [
+        ExpenseItem('Groceries', 50),
+        ExpenseItem('Restaurant', 100),
+        ExpenseItem('Snacks', 50),
+      ]),
+      ExpenseCategory('Transport', 150, Colors.lightGreen[200]!, [
+        ExpenseItem('Bus', 50),
+        ExpenseItem('Taxi', 100),
+      ]),
+      ExpenseCategory('Utilities', 100, Colors.orange[200]!, [
+        ExpenseItem('Electricity', 40),
+        ExpenseItem('Water', 30),
+        ExpenseItem('Internet', 30),
+      ]),
+      ExpenseCategory('Others', 50, Colors.blue[200]!, [
+        ExpenseItem('Gifts', 30),
+        ExpenseItem('Miscellaneous', 20),
+      ]),
     ];
 
-    return Card(
-      elevation: 6,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-      child: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Expenses by Category',
-              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+    return Column(
+      children: expenses.map((expense) {
+        return Card(
+          elevation: 2,
+          margin: const EdgeInsets.symmetric(vertical: 8),
+          color: expense.color,
+          child: ExpansionTile(
+            title: Text(
+              expense.category,
+              style: const TextStyle(
+                  color: Colors.white, fontWeight: FontWeight.bold),
             ),
-            const SizedBox(height: 16),
-            ...data.map((category) {
-              return Container(
-                margin: const EdgeInsets.symmetric(vertical: 8),
-                child: Row(
-                  children: [
-                    Expanded(
-                      flex: category.amount,
-                      child: Container(
-                        height: 24,
-                        decoration: BoxDecoration(
-                          color: category.color,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Text(
-                      '${category.name} - \$${category.amount}',
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                  ],
+            trailing: Text(
+              '\$${expense.amount}',
+              style: const TextStyle(color: Colors.white),
+            ),
+            children: expense.items.map((item) {
+              return ListTile(
+                title: Text(
+                  item.name,
+                  style: const TextStyle(color: Colors.white70),
+                ),
+                trailing: Text(
+                  '\$${item.amount}',
+                  style: const TextStyle(color: Colors.white70),
                 ),
               );
             }).toList(),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildRecentTransactions() {
-    return Card(
-      elevation: 6,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-      child: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Recent Transactions',
-              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 12),
-            _buildTransactionTile('Grocery Shopping', '2024-09-25', -50),
-            _buildTransactionTile('Bus Ticket', '2024-09-24', -15),
-            _buildTransactionTile('Dinner at Restaurant', '2024-09-23', -30),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTransactionTile(String title, String date, int amount) {
-    return Card(
-      margin: const EdgeInsets.symmetric(vertical: 4),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      child: ListTile(
-        title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
-        subtitle: Text('Date: $date'),
-        trailing: Text(
-          '${amount < 0 ? '' : '+'}\$${amount.abs()}',
-          style: TextStyle(color: amount < 0 ? Colors.red : Colors.green),
-        ),
-      ),
+          ),
+        );
+      }).toList(),
     );
   }
 }
 
 class ExpenseCategory {
-  final String name;
-  final int amount;
+  final String category;
+  final double amount;
   final Color color;
+  final List<ExpenseItem> items;
 
-  ExpenseCategory(this.name, this.amount, this.color);
+  ExpenseCategory(this.category, this.amount, this.color, this.items);
+}
+
+class ExpenseItem {
+  final String name;
+  final double amount;
+
+  ExpenseItem(this.name, this.amount);
+}
+
+class _SummaryItem extends StatelessWidget {
+  final String title;
+  final String amount;
+
+  const _SummaryItem({required this.title, required this.amount});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: const TextStyle(
+              fontSize: 16, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          amount,
+          style: const TextStyle(
+              fontSize: 20, fontWeight: FontWeight.bold),
+        ),
+      ],
+    );
+  }
 }

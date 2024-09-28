@@ -21,11 +21,11 @@ class BudgetProvider with ChangeNotifier {
   double get budget => _budget; // Getter for budget
 
   double get totalIncome {
-    return _transactions.fold(0, (sum, transaction) => sum + (transaction.isIncome ? transaction.amount : 0));
+    return _transactions.where((transaction) => transaction.isIncome).fold(0, (sum, transaction) => sum + transaction.amount);
   }
 
   double get totalExpenses {
-    return _transactions.fold(0, (sum, transaction) => sum + (!transaction.isIncome ? transaction.amount : 0));
+    return _transactions.where((transaction) => !transaction.isIncome).fold(0, (sum, transaction) => sum + transaction.amount);
   }
 
   // Add a new transaction
@@ -46,13 +46,8 @@ class BudgetProvider with ChangeNotifier {
 
     for (var transaction in _transactions) {
       // Check if the category already exists in the map
-      if (categoryTotals.containsKey(transaction.category)) {
-        // If it exists, add the amount; if null, treat it as 0.0
-        categoryTotals[transaction.category] = (categoryTotals[transaction.category] ?? 0.0) + transaction.amount;
-      } else {
-        // If it doesn't exist, initialize it with the transaction amount
-        categoryTotals[transaction.category] = transaction.amount;
-      }
+      categoryTotals.update(transaction.category, (currentTotal) => currentTotal + transaction.amount,
+          ifAbsent: () => transaction.amount);
     }
 
     return categoryTotals; // Return the map of category totals
