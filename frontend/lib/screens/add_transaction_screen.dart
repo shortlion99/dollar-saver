@@ -125,7 +125,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
   }
 }
 
-Future<String> _processUserInput(String input) async {
+  Future<String> _processUserInput(String input) async {
   final url = Uri.parse('http://localhost:3000/addExpense'); // Update to your server URL
   try {
     final response = await http.post(
@@ -165,7 +165,8 @@ Future<String> _processUserInput(String input) async {
 
   Future<void> _pickImage() async {
     try {
-      final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
+      final pickedFile =
+          await ImagePicker().pickImage(source: ImageSource.gallery);
       if (pickedFile != null) {
         setState(() {
           _receiptImage = File(pickedFile.path);
@@ -173,14 +174,12 @@ Future<String> _processUserInput(String input) async {
         });
 
         final response = await _processReceipt(_receiptImage!);
-        if (response != null) {
-          setState(() {
-            categorizedExpenses.add(response);
-            _isProcessing = false; // Stop processing
-          });
-          ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Receipt uploaded: $response')));
-        }
+        setState(() {
+          categorizedExpenses.add(response);
+          _isProcessing = false; // Stop processing
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Receipt uploaded: $response')));
       }
     } catch (e) {
       setState(() {
@@ -189,36 +188,11 @@ Future<String> _processUserInput(String input) async {
       print('Error picking image: $e');
     }
   }
-  Future<String?> _processReceipt(File receiptImage) async {
-    final url = Uri.parse('http://localhost:3000/uploadReceipt'); // Your server URL
-    try {
-      var request = http.MultipartRequest('POST', url)
-        ..fields['userId'] = 'Etvdsmu2c0NCjwLr40FI' // Add your user ID here
-        ..files.add(await http.MultipartFile.fromPath(
-          'receipt',
-          receiptImage.path,
-        ));
 
-      final response = await request.send();
-
-      if (response.statusCode == 200) {
-        final responseData = await response.stream.bytesToString();
-        final jsonData = jsonDecode(responseData);
-
-        // Extract total and merchant from the response
-        final total = jsonData['details']['total'];
-        final merchant = jsonData['details']['merchant'];
-
-        return 'Total: \$${total}, Merchant: $merchant';
-      } else {
-        print('Error: ${response.statusCode}');
-        print('Response: ${await response.stream.bytesToString()}');
-        return null;
-      }
-    } catch (e) {
-      print('Exception: $e');
-      return null;
-    }
+  Future<String> _processReceipt(File receiptImage) async {
+    await Future.delayed(
+        const Duration(seconds: 2)); // Simulate longer network delay
+    return "Receipt processed: Spent \$20 on groceries"; // Example response
   }
 
   Widget _buildReceiptPreview() {
