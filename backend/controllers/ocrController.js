@@ -13,17 +13,22 @@ exports.addExpense = async (req, res) => {
     // Use Tesseract to extract text
     const { data: { text } } = await Tesseract.recognize(
         imagePath,
-        'eng',
-        {
-          logger: info => console.log(info) // Optional: log progress
-        }
+        'eng'
       );
 
     console.log("Extracted Text:", text);
+    const userId = req.body.userId;
 
-    await admin.firestore().collection("receipts").add({
-      text: text,
-      createdAt: new Date(),
+    const batch = admin.firestore().batch();
+    expenses.forEach(expense => {
+      const expenseRef = admin.firestore().collection("users").doc(userId).collection("expenses").doc();
+      batch.set(expenseRef, {
+        description: expense.description,
+        category: expense.category,
+        name: expense.name,
+        amount: expense.amount,
+        createdAt: new Date(),
+      });
     });
 
     res.status(200).json({
