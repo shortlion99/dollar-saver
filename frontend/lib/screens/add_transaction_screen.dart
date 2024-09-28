@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class AddTransactionScreen extends StatefulWidget {
   const AddTransactionScreen({super.key});
@@ -16,41 +18,41 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
   bool _isProcessing = false; // To track processing state
 
   @override
-Widget build(BuildContext context) {
-  return Scaffold(
-    backgroundColor: Colors.white,
-    appBar: AppBar(
-      elevation: 0,
-      title: Row(
-        children: [
-          const Text('Add Transaction', style: TextStyle(color: Colors.black)),
-        ],
-      ),
-      // Aligning title to the left
-      toolbarHeight: 60, // Adjust height if necessary
-    ),
-    body: Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        elevation: 0,
+        title: Row(
           children: [
-            _buildWelcomeMessage(),
-            const SizedBox(height: 16),
-            _buildInputField(),
-            const SizedBox(height: 16),
-            _buildReceiptPreview(),
-            const SizedBox(height: 16),
-            _isProcessing ? _buildLoadingIndicator() : Container(),
-            const SizedBox(height: 16),
-            _buildCategorizedExpenses(),
+            const Text('Add Transaction',
+                style: TextStyle(color: Colors.black)),
           ],
         ),
+        // Aligning title to the left
+        toolbarHeight: 60, // Adjust height if necessary
       ),
-    ),
-  );
-}
-
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildWelcomeMessage(),
+              const SizedBox(height: 16),
+              _buildInputField(),
+              const SizedBox(height: 16),
+              _buildReceiptPreview(),
+              const SizedBox(height: 16),
+              _isProcessing ? _buildLoadingIndicator() : Container(),
+              const SizedBox(height: 16),
+              _buildCategorizedExpenses(),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 
   Widget _buildWelcomeMessage() {
     return Card(
@@ -58,7 +60,8 @@ Widget build(BuildContext context) {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10),
       ),
-      color: Colors.grey[100], // Slightly different background color for contrast
+      color:
+          Colors.grey[100], // Slightly different background color for contrast
       child: Padding(
         padding: const EdgeInsets.all(12.0),
         child: const Text(
@@ -90,7 +93,8 @@ Widget build(BuildContext context) {
                 decoration: InputDecoration(
                   hintText: 'Type your expense here...',
                   border: InputBorder.none,
-                  contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+                  contentPadding:
+                      const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
                 ),
                 onSubmitted: (_) => _logExpense(),
               ),
@@ -106,25 +110,65 @@ Widget build(BuildContext context) {
   }
 
   void _logExpense() async {
-    final message = expenseController.text.trim();
-    if (message.isNotEmpty) {
-      final response = await _processUserInput(message);
+  final message = expenseController.text.trim();
+  if (message.isNotEmpty) {
+    print('Sending request with message: $message'); // Debug log
+    final response = await _processUserInput(message);
+    if (response.isNotEmpty) {
       setState(() {
         categorizedExpenses.add(response);
       });
       expenseController.clear();
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Expense logged: $response')));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('Expense logged: $response')));
+    } else {
+      print('Received empty response'); // Debug log
     }
   }
+}
 
   Future<String> _processUserInput(String input) async {
-    await Future.delayed(const Duration(seconds: 1));
-    return "Categorized as Food & Drink, amount: \$10"; // Example response
+  final url = Uri.parse('http://localhost:3000/addExpense'); // Update to your server URL
+  try {
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'inputText': input,
+        'userId': 'Etvdsmu2c0NCjwLr40FI',
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body); // Parse the response
+
+      // Now handle the array of expenses
+      final expenses = data['expenses'];
+      String result = '';
+
+      for (var expense in expenses) {
+        result += 'Category: ${expense['category']}\n'
+                  'Total: \$${expense['total']}\n'
+                  'Description: ${expense['name']}\n'
+                  'Date: ${expense['date']}\n\n';
+      }
+
+      return result; // Return formatted string of all categorized expenses
+    } else {
+      print('Error: ${response.statusCode}');
+      print('Response body: ${response.body}');
+      return 'Error processing expense';
+    }
+  } catch (e) {
+    print('Exception: $e'); // Debug log
+    return 'Failed to get a valid response';
   }
+}
 
   Future<void> _pickImage() async {
     try {
-      final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
+      final pickedFile =
+          await ImagePicker().pickImage(source: ImageSource.gallery);
       if (pickedFile != null) {
         setState(() {
           _receiptImage = File(pickedFile.path);
@@ -136,7 +180,8 @@ Widget build(BuildContext context) {
           categorizedExpenses.add(response);
           _isProcessing = false; // Stop processing
         });
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Receipt uploaded: $response')));
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Receipt uploaded: $response')));
       }
     } catch (e) {
       setState(() {
@@ -147,7 +192,8 @@ Widget build(BuildContext context) {
   }
 
   Future<String> _processReceipt(File receiptImage) async {
-    await Future.delayed(const Duration(seconds: 2)); // Simulate longer network delay
+    await Future.delayed(
+        const Duration(seconds: 2)); // Simulate longer network delay
     return "Receipt processed: Spent \$20 on groceries"; // Example response
   }
 
@@ -192,7 +238,8 @@ Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('Categorized Expenses:', style: TextStyle(fontWeight: FontWeight.bold)),
+        const Text('Categorized Expenses:',
+            style: TextStyle(fontWeight: FontWeight.bold)),
         ListView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
