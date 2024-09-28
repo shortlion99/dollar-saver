@@ -43,16 +43,8 @@ class DashboardScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 10),
                 _buildCategoryList(context),
+      
                 const SizedBox(height: 30),
-                const Text(
-                  'Recent Transactions',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
-                  ),
-                ),
-                const SizedBox(height: 10),
                 RecentTransactions(limit: 6), // Set limit here to show more entries
               ],
             ),

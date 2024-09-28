@@ -17,21 +17,26 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
   List<String> categorizedExpenses = []; // Store categorized expenses
   bool _isProcessing = false; // To track processing state
 
+  static const TextStyle titleStyle = TextStyle(
+    fontSize: 22,
+    fontWeight: FontWeight.bold,
+    color: Colors.black,
+  );
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
+    
+      return Scaffold(
+        backgroundColor: Colors.white,
       appBar: AppBar(
         elevation: 0,
-        title: Row(
-          children: [
-            const Text('Add Transaction',
-                style: TextStyle(color: Colors.black)),
-          ],
-        ),
-        // Aligning title to the left
-        toolbarHeight: 60, // Adjust height if necessary
+        title: const Text('Add Transaction', style: titleStyle),
+        backgroundColor: Colors.white,
+        elevation: 0,
+        iconTheme: const IconThemeData(color: Colors.black),
       ),
+
+
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: SingleChildScrollView(
