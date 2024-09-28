@@ -5,13 +5,15 @@ import 'package:provider/provider.dart'; // Ensure you have provider imported
 class RecentTransactions extends StatelessWidget {
   final int limit;
 
-  const RecentTransactions({Key? key, this.limit = 6}) : super(key: key); // Change default limit to desired number
+  const RecentTransactions({Key? key, this.limit = 6})
+      : super(key: key); // Change default limit to desired number
 
   @override
   Widget build(BuildContext context) {
     return Consumer<BudgetProvider>(
       builder: (context, budgetProvider, child) {
-        final transactionsToShow = budgetProvider.transactions.take(limit).toList();
+        final transactionsToShow =
+            budgetProvider.transactions.take(limit).toList();
 
         if (transactionsToShow.isEmpty) {
           return const Padding(
@@ -100,16 +102,16 @@ class RecentTransactions extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
                               Text(
-                                transaction.formattedDate,
-                                style: TextStyle(color: Colors.grey[500]),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
                                 '\$${transaction.amount.toStringAsFixed(2)}',
                                 style: const TextStyle(
                                   fontWeight: FontWeight.bold,
                                   color: Colors.pinkAccent,
                                 ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                transaction.formattedDate,
+                                style: TextStyle(color: Colors.grey[500]),
                               ),
                             ],
                           ),
