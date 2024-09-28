@@ -84,10 +84,24 @@ class DashboardScreen extends StatelessWidget {
 
   Widget _buildCategoryList() {
     final List<ExpenseCategory> expenses = [
-      ExpenseCategory('Food', 200, Colors.pink[200]!),
-      ExpenseCategory('Transport', 150, Colors.lightGreen[200]!),
-      ExpenseCategory('Utilities', 100, Colors.orange[200]!),
-      ExpenseCategory('Others', 50, Colors.blue[200]!),
+      ExpenseCategory('Food', 200, Colors.pink[200]!, [
+        ExpenseItem('Groceries', 50),
+        ExpenseItem('Restaurant', 100),
+        ExpenseItem('Snacks', 50),
+      ]),
+      ExpenseCategory('Transport', 150, Colors.lightGreen[200]!, [
+        ExpenseItem('Bus', 50),
+        ExpenseItem('Taxi', 100),
+      ]),
+      ExpenseCategory('Utilities', 100, Colors.orange[200]!, [
+        ExpenseItem('Electricity', 40),
+        ExpenseItem('Water', 30),
+        ExpenseItem('Internet', 30),
+      ]),
+      ExpenseCategory('Others', 50, Colors.blue[200]!, [
+        ExpenseItem('Gifts', 30),
+        ExpenseItem('Miscellaneous', 20),
+      ]),
     ];
 
     return Column(
@@ -96,7 +110,7 @@ class DashboardScreen extends StatelessWidget {
           elevation: 2,
           margin: const EdgeInsets.symmetric(vertical: 8),
           color: expense.color,
-          child: ListTile(
+          child: ExpansionTile(
             title: Text(
               expense.category,
               style: const TextStyle(
@@ -106,6 +120,18 @@ class DashboardScreen extends StatelessWidget {
               '\$${expense.amount}',
               style: const TextStyle(color: Colors.white),
             ),
+            children: expense.items.map((item) {
+              return ListTile(
+                title: Text(
+                  item.name,
+                  style: const TextStyle(color: Colors.white70),
+                ),
+                trailing: Text(
+                  '\$${item.amount}',
+                  style: const TextStyle(color: Colors.white70),
+                ),
+              );
+            }).toList(),
           ),
         );
       }).toList(),
@@ -117,8 +143,16 @@ class ExpenseCategory {
   final String category;
   final double amount;
   final Color color;
+  final List<ExpenseItem> items;
 
-  ExpenseCategory(this.category, this.amount, this.color);
+  ExpenseCategory(this.category, this.amount, this.color, this.items);
+}
+
+class ExpenseItem {
+  final String name;
+  final double amount;
+
+  ExpenseItem(this.name, this.amount);
 }
 
 class _SummaryItem extends StatelessWidget {
