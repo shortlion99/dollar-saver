@@ -119,8 +119,6 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
         categorizedExpenses.add(response);
       });
       expenseController.clear();
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('Expense logged: $response')));
     } else {
       print('Received empty response'); // Debug log
     }
