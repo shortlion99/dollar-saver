@@ -40,14 +40,12 @@ const parseExpenseInput = async (inputText) => {
   
       const { category, isExpense } = await categorizeExpense(description);
       
-      const createdAt = new Date();
-  
       categorizedExpenses.push({
-        description,
+        name: description, // Changed from description to name
         category,
-        amount,
+        total: amount, // Changed from amount to total
+        date: new Date(), 
         expense: isExpense,
-        createdAt,
       });
     }
   

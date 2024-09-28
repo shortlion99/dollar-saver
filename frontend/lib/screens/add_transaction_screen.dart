@@ -110,61 +110,60 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
   }
 
   void _logExpense() async {
-    final message = expenseController.text.trim();
-    if (message.isNotEmpty) {
-      print('Sending request with message: $message'); // Debug log
-      final response = await _processUserInput(message);
-      if (response.isNotEmpty) {
-        setState(() {
-          categorizedExpenses.add(response);
-        });
-        expenseController.clear();
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('Expense logged: $response')));
-      } else {
-        print('Received empty response'); // Debug log
-      }
+  final message = expenseController.text.trim();
+  if (message.isNotEmpty) {
+    print('Sending request with message: $message'); // Debug log
+    final response = await _processUserInput(message);
+    if (response.isNotEmpty) {
+      setState(() {
+        categorizedExpenses.add(response);
+      });
+      expenseController.clear();
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('Expense logged: $response')));
+    } else {
+      print('Received empty response'); // Debug log
     }
   }
+}
 
   Future<String> _processUserInput(String input) async {
-    final url = Uri.parse(
-        'http://localhost:3000/addExpense'); // Update to your server URL
-    try {
-      final response = await http.post(
-        url,
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'inputText': input,
-          'userId': 'Etvdsmu2c0NCjwLr40FI',
-        }),
-      );
+  final url = Uri.parse('http://localhost:3000/addExpense'); // Update to your server URL
+  try {
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'inputText': input,
+        'userId': 'Etvdsmu2c0NCjwLr40FI',
+      }),
+    );
 
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body); // Parse the response
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body); // Parse the response
 
-        // Now handle the array of expenses
-        final expenses = data['expenses'];
-        String result = '';
+      // Now handle the array of expenses
+      final expenses = data['expenses'];
+      String result = '';
 
-        for (var expense in expenses) {
-          result += 'Category: ${expense['category']}\n'
-              'Total: \$${expense['total']}\n'
-              'Description: ${expense['name']}\n'
-              'Date: ${expense['date']}\n\n';
-        }
-
-        return result; // Return formatted string of all categorized expenses
-      } else {
-        print('Error: ${response.statusCode}');
-        print('Response body: ${response.body}');
-        return 'Error processing expense';
+      for (var expense in expenses) {
+        result += 'Category: ${expense['category']}\n'
+                  'Total: \$${expense['total']}\n'
+                  'Description: ${expense['name']}\n'
+                  'Date: ${expense['date']}\n\n';
       }
-    } catch (e) {
-      print('Exception: $e'); // Debug log
-      return 'Failed to get a valid response';
+
+      return result; // Return formatted string of all categorized expenses
+    } else {
+      print('Error: ${response.statusCode}');
+      print('Response body: ${response.body}');
+      return 'Error processing expense';
     }
+  } catch (e) {
+    print('Exception: $e'); // Debug log
+    return 'Failed to get a valid response';
   }
+}
 
   Future<void> _pickImage() async {
     try {
