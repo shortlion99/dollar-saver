@@ -8,7 +8,7 @@ class AppLogo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Image.asset(
-      '/Users/leandreadeconceicao/Desktop/AI-expense-tracker/frontend/lib/assets/images/dollarsaver_logo.png', // Update with your logo path
+      'lib/assets/images/dollarsaver_logo.png', // Update with your logo path
       height: size,
       width: size,
       fit: BoxFit.contain,
