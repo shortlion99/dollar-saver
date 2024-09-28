@@ -71,7 +71,7 @@ Widget build(BuildContext context) {
           children: [
             Container(
               padding: const EdgeInsets.only(top: 30.0),
-              child: AppLogo(size: 120),
+              // child: AppLogo(size: 120),
             ),
             Expanded(
               child: SingleChildScrollView(
