@@ -1,40 +1,35 @@
 require('dotenv').config();
-console.log('OpenAI API Key:', process.env.OPENAI_API_KEY);
+const cors = require('cors');
 const express = require('express');
 const bodyParser = require('body-parser');
 const admin = require('firebase-admin');
-const multer = require('multer');
-const vision = require('@google-cloud/vision');
-const { OpenAIApi, Configuration } = require('openai');
-const axios = require('axios');
-require('dotenv').config();
-const expenseRouter = require('./routes/llmRoutes');
-
+const llmRouter = require('./routes/llmRoutes');
+const ocrRouter = require('./routes/ocrRoutes');
 
 const app = express();
-
-
-
-const upload = multer({ storage: multer.memoryStorage() });
-
 const port = 3000;
 
+// Initialize Firebase Admin SDK
 admin.initializeApp({
     credential: admin.credential.cert(require('./config/serviceAccountKey.json'))
 });
 
-app.use(express.json()); // Add this line
-app.use(bodyParser.json());
-app.use('/', expenseRouter);
-
-
-
-app.get('/', (req, res) => {
-  res.send('Hello, World!');
-});
-
-
+// Initialize Firestore
 const db = admin.firestore();
+
+// Middleware
+app.use(cors());
+app.use(express.json()); // Ensure express can parse JSON
+app.use(bodyParser.json()); // Optional: can be removed if not needed
+
+// Define routes
+app.use('/', llmRouter);
+app.use('/', ocrRouter);
+
+// Test endpoint
+app.get('/', (req, res) => {
+    res.send('API is running');
+});
 
 // Example endpoint to test adding user data
 app.post('/addUser', async (req, res) => {
@@ -52,9 +47,7 @@ app.post('/addUser', async (req, res) => {
     }
 });
 
-
-
 // Start the server
 app.listen(port, () => {
-  console.log(`Server is running at http://localhost:${port}`);
+    console.log(`Server is running at http://localhost:${port}`);
 });

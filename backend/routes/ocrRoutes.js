@@ -1,10 +1,11 @@
 const express = require('express');
 const multer = require('multer');
-const { uploadReceipt } = require('../controllers/ocrController');
+const ocrController = require('../controllers/ocrController');
+
+const upload = multer({ dest: 'uploads/' });
 
 const router = express.Router();
-const upload = multer({ storage: multer.memoryStorage() });
 
-router.post('/upload-receipt', upload.single('receipt'), uploadReceipt);
+router.post('/uploadReceipt', upload.single('receipt'), ocrController.addExpense);
 
 module.exports = router;
