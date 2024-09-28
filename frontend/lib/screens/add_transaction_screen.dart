@@ -4,7 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:provider/provider.dart';
-
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class AddTransactionScreen extends StatefulWidget {
   const AddTransactionScreen({super.key});
@@ -35,102 +36,154 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
       ),
       body: Container(
         color: Colors.white, // Ensure the body background is white
-        padding: const EdgeInsets.symmetric(horizontal: 20.0), 
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildInputField(),
-            const SizedBox(height: 10),
-            _buildReceiptPreview(),
-            const SizedBox(height: 10),
-            _isProcessing ? _buildLoadingIndicator() : Container(),
-            const SizedBox(height: 10),
-            _buildCategorizedExpenses(),
-          ],
+        padding: const EdgeInsets.symmetric(horizontal: 20.0),
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildWelcomeMessage(),
+              const SizedBox(height: 16),
+              _buildInputField(),
+              const SizedBox(height: 16),
+              _buildReceiptPreview(),
+              const SizedBox(height: 16),
+              _isProcessing ? _buildLoadingIndicator() : Container(),
+              const SizedBox(height: 16),
+              _buildCategorizedExpenses(),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildWelcomeMessage() {
+    return Card(
+      elevation: 2,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10),
+      ),
+      color: Colors.grey[100], // Slightly different background color for contrast
+      child: Padding(
+        padding: const EdgeInsets.all(12.0),
+        child: const Text(
+          'Easily log your expenses. Type your expense or upload a receipt, and let AI categorize it for you!',
+          style: TextStyle(color: Colors.black, fontSize: 16),
         ),
       ),
     );
   }
 
   Widget _buildInputField() {
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      const Text(
-        'Enter your expenses or upload a receipt',
-        style: TextStyle(fontSize: 14),
-      ),
-      const SizedBox(height: 8),
-      Card(
-        elevation: 8,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(30),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Enter your expenses or upload a receipt',
+          style: TextStyle(fontSize: 14),
         ),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0), // Increased vertical padding
-          child: Row(
-            children: [
-              IconButton(
-                icon: const Icon(Icons.upload_file, color: Colors.black),
-                onPressed: _pickImage,
-                tooltip: 'Upload Receipt',
-              ),
-              Expanded(
-                child: TextField(
-                  controller: expenseController,
-                  decoration: InputDecoration(
-                    hintText: 'E.g. \$10 on lunch, \$100 on flight tickets',
-                    border: InputBorder.none,
-                    contentPadding: const EdgeInsets.symmetric(vertical: 20, horizontal: 12), // Adjust padding here
-                  ),
-                  minLines: 1, // Set minimum lines for height
-                  maxLines: null, // Allow the field to grow vertically
-                  onSubmitted: (_) => _logExpense(),
+        const SizedBox(height: 8),
+        Card(
+          elevation: 8,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(30),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0), // Increased vertical padding
+            child: Row(
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.upload_file, color: Colors.black),
+                  onPressed: _pickImage,
+                  tooltip: 'Upload Receipt',
                 ),
-              ),
-              IconButton(
-                icon: const Icon(Icons.send, color: Colors.black),
-                onPressed: _logExpense,
-              ),
-            ],
+                Expanded(
+                  child: TextField(
+                    controller: expenseController,
+                    decoration: InputDecoration(
+                      hintText: 'Type your expense here...',
+                      border: InputBorder.none,
+                      contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+                    ),
+                    onSubmitted: (_) => _logExpense(),
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.send, color: Colors.black),
+                  onPressed: _logExpense,
+                ),
+              ],
+            ),
           ),
         ),
-      ),
-    ],
-  );
-}
-
+      ],
+    );
+  }
 
   void _logExpense() async {
-  final message = expenseController.text.trim();
-  if (message.isNotEmpty) {
-    final response = await _processUserInput(message);
-    
-    final transaction = Transaction(
-      category: response['category']!,
-      amount: 10.0, // Adjust the amount as needed based on your logic
-      date: DateTime.now(), // Use the current date for the transaction
-      isIncome: false, // Set this according to your needs
-    );
+    final message = expenseController.text.trim();
+    if (message.isNotEmpty) {
+      setState(() {
+        _isProcessing = true;
+      });
+      final response = await _processUserInput(message);
+      if (response.isNotEmpty) {
+        final transaction = Transaction(
+          category: response['category']!,
+          amount: double.tryParse(response['total'] ?? '0') ?? 0.0,
+          date: DateTime.now(), // Use the current date for the transaction
+          isIncome: false, // Set this according to your needs
+        );
 
-    Provider.of<BudgetProvider>(context, listen: false).addTransaction(transaction);
-    setState(() {
-      categorizedExpenses.add(response);
-    });
-    expenseController.clear();
+        Provider.of<BudgetProvider>(context, listen: false).addTransaction(transaction);
+        setState(() {
+          categorizedExpenses.add(response);
+          expenseController.clear();
+          _isProcessing = false;
+        });
 
-    // Show success message
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text('Successfully added: ${response['message']} under ${response['category']}'),
-    ));
+        // Show success message
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('Successfully added: ${response['message']} under ${response['category']}'),
+        ));
+      } else {
+        setState(() {
+          _isProcessing = false;
+        });
+        // Handle empty response case
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Failed to log expense')));
+      }
+    }
   }
-}
-
-
 
   Future<Map<String, String>> _processUserInput(String input) async {
-    await Future.delayed(const Duration(seconds: 1));
-    return {"category": "Food & Drink", "message": "Spent \$10 on food"};
+    final url = Uri.parse('http://localhost:3000/addExpense'); // Update to your server URL
+    try {
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'inputText': input,
+          'userId': 'Etvdsmu2c0NCjwLr40FI',
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body); // Parse the response
+        final expenses = data['expenses'];
+
+        if (expenses.isNotEmpty) {
+          // Return the first categorized expense for simplicity
+          return expenses[0];
+        }
+      } else {
+        print('Error: ${response.statusCode}');
+        print('Response body: ${response.body}');
+      }
+    } catch (e) {
+      print('Exception: $e'); // Debug log
+    }
+    return {};
   }
 
   Future<void> _pickImage() async {
@@ -147,6 +200,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
           categorizedExpenses.add(response);
           _isProcessing = false;
         });
+
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Receipt uploaded: ${response['message']}')));
       }
     } catch (e) {
@@ -159,7 +213,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
 
   Future<Map<String, String>> _processReceipt(File receiptImage) async {
     await Future.delayed(const Duration(seconds: 2));
-    return {"category": "Groceries", "message": "Spent \$20 on groceries"};
+    return {"category": "Groceries", "message": "Spent \$20 on groceries"}; // Simulated response
   }
 
   Widget _buildReceiptPreview() {
@@ -203,7 +257,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('Your Expenses:', style: TextStyle(fontWeight: FontWeight.bold)),
+        const Text('Categorized Expenses:', style: TextStyle(fontWeight: FontWeight.bold)),
         ListView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
@@ -244,5 +298,3 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
     super.dispose();
   }
 }
-
-
