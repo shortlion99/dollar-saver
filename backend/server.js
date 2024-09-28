@@ -4,6 +4,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const admin = require('firebase-admin');
 const multer = require('multer');
+const 
 const vision = require('@google-cloud/vision');
 const { OpenAIApi, Configuration } = require('openai');
 const axios = require('axios');
@@ -32,7 +33,7 @@ app.use('/', ocrRouter);
 
 
 app.get('/', (req, res) => {
-  res.send('Hello, World!');
+    res.sendFile(path.join(__dirname, '../frontend/index.html'));
 });
 
 
