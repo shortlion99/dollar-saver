@@ -45,6 +45,9 @@ exports.addExpense = async (req, res) => {
       .json({
         message: "Expense categorized successfully.",
         category: parsedData.category,
+        total: parsedData.amount,
+        name: parsedData.name,
+        date: new Date(), // Add timestamp
       });
   } catch (error) {
     console.error("Error processing expense input:", error.message);

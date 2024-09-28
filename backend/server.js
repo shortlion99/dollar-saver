@@ -3,22 +3,11 @@ const cors = require('cors');
 const express = require('express');
 const bodyParser = require('body-parser');
 const admin = require('firebase-admin');
-const multer = require('multer');
-const path = require('path');
-const vision = require('@google-cloud/vision');
-const { OpenAIApi, Configuration } = require('openai');
-const axios = require('axios');
-require('dotenv').config();
 const llmRouter = require('./routes/llmRoutes');
 const ocrRouter = require('./routes/ocrRoutes');
 
-
-
 const app = express();
 app.use(cors());
-
-
-const upload = multer({ storage: multer.memoryStorage() });
 
 const port = 3000;
 
@@ -32,7 +21,7 @@ app.use('/', llmRouter);
 app.use('/', ocrRouter);
 
 app.get('/', (req, res) => {
-    res.send('API is running'); // Simple text response
+    res.send('API is running');
 });
 
 const db = admin.firestore();
@@ -54,7 +43,11 @@ app.post('/addUser', async (req, res) => {
 });
 
 
-const ipAddress = '192.168.0.121'; // Replace with your actual IP address
-app.listen(port, ipAddress, () => {
-    console.log(`Server is running at http://${ipAddress}:${port}`);
-});
+// const ipAddress = '192.168.0.121'; // Replace with your actual IP address
+// app.listen(port, ipAddress, () => {
+//     console.log(`Server is running at http://${ipAddress}:${port}`);
+// });
+
+app.listen(port, () => {
+    console.log(`Server is running at http://localhost:${port}`);
+  });
