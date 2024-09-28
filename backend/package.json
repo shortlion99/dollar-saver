@@ -3,6 +3,7 @@
     "@google-cloud/vision": "^4.3.2",
     "axios": "^1.7.7",
     "dotenv": "^16.4.5",
-    "openai": "^4.65.0"
+    "openai": "^4.65.0",
+    "tesseract.js": "^5.1.1"
   }
 }

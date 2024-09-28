@@ -4,11 +4,14 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const admin = require('firebase-admin');
 const multer = require('multer');
+const path = require('path');
 const vision = require('@google-cloud/vision');
 const { OpenAIApi, Configuration } = require('openai');
 const axios = require('axios');
 require('dotenv').config();
-const expenseRouter = require('./routes/llmRoutes');
+const llmRouter = require('./routes/llmRoutes');
+const ocrRouter = require('./routes/ocrRoutes');
+
 
 
 const app = express();
@@ -25,12 +28,12 @@ admin.initializeApp({
 
 app.use(express.json()); // Add this line
 app.use(bodyParser.json());
-app.use('/', expenseRouter);
-
+app.use('/', llmRouter);
+app.use('/', ocrRouter);
 
 
 app.get('/', (req, res) => {
-  res.send('Hello, World!');
+    res.sendFile(path.join(__dirname, '../frontend/index.html'));
 });
 
 
