@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+import 'package:ai_expense_app/widgets/app_logo.dart';
 
 class AddTransactionScreen extends StatefulWidget {
   const AddTransactionScreen({super.key});
@@ -16,40 +17,41 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
   bool _isProcessing = false; // To track processing state
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      
-      appBar: AppBar(
-        elevation: 0,
-        
-        title: Row(
-          children: [
-            const Text('Add Transaction',),
-          ],
-        ),
-        toolbarHeight: 60, // Adjust height if necessary
+Widget build(BuildContext context) {
+  return Scaffold(
+    backgroundColor: Colors.white,
+    appBar: AppBar(
+      elevation: 0,
+      title: Row(
+        children: [
+          
+          const Text('Add Transaction', style: TextStyle(color: Colors.black)),
+        ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildWelcomeMessage(),
-              const SizedBox(height: 16),
-              _buildInputField(),
-              const SizedBox(height: 16),
-              _buildReceiptPreview(),
-              const SizedBox(height: 16),
-              _isProcessing ? _buildLoadingIndicator() : Container(),
-              const SizedBox(height: 16),
-              _buildCategorizedExpenses(),
-            ],
-          ),
-        ),
+      toolbarHeight: 60,
+    ),
+    body: Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          
+          const SizedBox(height: 16),
+          _buildWelcomeMessage(),
+          const SizedBox(height: 16),
+          _buildInputField(),
+          const SizedBox(height: 16),
+          _buildReceiptPreview(),
+          const SizedBox(height: 16),
+          _isProcessing ? _buildLoadingIndicator() : Container(),
+          const SizedBox(height: 16),
+          _buildCategorizedExpenses(),
+        ],
       ),
-    );
-  }
+    ),
+  );
+}
+
 
   Widget _buildWelcomeMessage() {
     return Card(
