@@ -1,6 +1,6 @@
-# Expense Tracker Application
+# AI Expense Tracker Application
 
-This is a full-stack Expense Tracker application designed to simplify the tracking of personal expenses. The application utilizes Tesseract OCR and integrates with OpenAI's GPT model to automatically categorizes expenses and extracts information from receipts, making expense management easier and more efficient.
+This is a full-stack AI Expense Tracker application designed to simplify the tracking of personal expenses. The application utilizes Tesseract OCR and integrates with OpenAI's GPT model to automatically categorizes expenses and extracts information from receipts, making expense management easier and more efficient.
 
 ## Features
 
