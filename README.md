@@ -15,5 +15,5 @@ This is a full-stack AI Expense Tracker application designed to simplify the tra
 - **Frontend**: Flutter (Dart) for mobile application
 - **Backend**: Node.js with Express
 - **Database**: Firebase Firestore
-- **API**: OpenAI GPT for expense categorization
+- **AI Integration**: OpenAI GPT for expense categorization
 - **Library**: Tesseract OCR for extracting text from uploaded receipts
